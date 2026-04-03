@@ -35,7 +35,9 @@ jobs:
             dkrinitsyn/agents-infra-test-gateway:${{ steps.timestamp.outputs.ts }}
 
       - name: Update gateway image tag
-        run: sed -i "s/tag: .*/tag: \"${{ steps.timestamp.outputs.ts }}\"/" helm/gateway/values.yaml
+        run: |
+          TS="${{ steps.timestamp.outputs.ts }}"
+          sed -i "s/tag: .*/tag: \"${TS}\"/" helm/gateway/values.yaml
 
       - name: Commit gateway values.yaml
         uses: stefanzweifel/git-auto-commit-action@v5
@@ -69,7 +71,9 @@ jobs:
             dkrinitsyn/agents-infra-test-backend:${{ steps.timestamp.outputs.ts }}
 
       - name: Update backend image tag
-        run: sed -i "s/tag: .*/tag: \"${{ steps.timestamp.outputs.ts }}\"/" helm/backend/values.yaml
+        run: |
+          TS="${{ steps.timestamp.outputs.ts }}"
+          sed -i "s/tag: .*/tag: \"${TS}\"/" helm/backend/values.yaml
 
       - name: Commit backend values.yaml
         uses: stefanzweifel/git-auto-commit-action@v5
