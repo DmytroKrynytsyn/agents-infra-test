@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/dkrinitsyn/agents-infra-test
+    repoURL: https://github.com/DmytroKrynytsyn/agents-infra-test
     targetRevision: HEAD
     path: argocd/apps
   destination:
