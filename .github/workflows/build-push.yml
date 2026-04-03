@@ -6,16 +6,20 @@ on:
       - main
 
 jobs:
-  build-gateway:
+  prepare:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    outputs:
+      ts: ${{ steps.timestamp.outputs.ts }}
     steps:
-      - uses: actions/checkout@v4
-
       - name: Generate build timestamp
         id: timestamp
         run: echo "ts=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+  build-gateway:
+    runs-on: ubuntu-latest
+    needs: prepare
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -31,29 +35,13 @@ jobs:
           push: true
           tags: |
             dkrinitsyn/agents-infra-test-gateway:latest
-            dkrinitsyn/agents-infra-test-gateway:${{ steps.timestamp.outputs.ts }}
-
-      - name: Update gateway image tag
-        run: |
-          TS="${{ steps.timestamp.outputs.ts }}"
-          sed -i "s/tag: .*/tag: \"${TS}\"/" helm/gateway/values.yaml
-
-      - name: Commit gateway values.yaml
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "ci: update agents-infra-test-gateway tag to ${{ steps.timestamp.outputs.ts }}"
-          file_pattern: helm/gateway/values.yaml
+            dkrinitsyn/agents-infra-test-gateway:${{ needs.prepare.outputs.ts }}
 
   build-backend:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    needs: prepare
     steps:
       - uses: actions/checkout@v4
-
-      - name: Generate build timestamp
-        id: timestamp
-        run: echo "ts=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -69,15 +57,26 @@ jobs:
           push: true
           tags: |
             dkrinitsyn/agents-infra-test-backend:latest
-            dkrinitsyn/agents-infra-test-backend:${{ steps.timestamp.outputs.ts }}
+            dkrinitsyn/agents-infra-test-backend:${{ needs.prepare.outputs.ts }}
 
-      - name: Update backend image tag
+  update-tags:
+    runs-on: ubuntu-latest
+    needs: [prepare, build-gateway, build-backend]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update image tags
         run: |
-          TS="${{ steps.timestamp.outputs.ts }}"
+          TS="${{ needs.prepare.outputs.ts }}"
+          sed -i "s/tag: .*/tag: \"${TS}\"/" helm/gateway/values.yaml
           sed -i "s/tag: .*/tag: \"${TS}\"/" helm/backend/values.yaml
 
-      - name: Commit backend values.yaml
+      - name: Commit updated values
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "ci: update agents-infra-test-backend tag to ${{ steps.timestamp.outputs.ts }}"
-          file_pattern: helm/backend/values.yaml
+          commit_message: "ci: update image tags to ${{ needs.prepare.outputs.ts }}"
+          file_pattern: |
+            helm/gateway/values.yaml
+            helm/backend/values.yaml
