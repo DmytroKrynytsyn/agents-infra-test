@@ -1,7 +1,7 @@
 image:
   repository: dkrinitsyn/agents-infra-test-gateway
   pullPolicy: Always
-  tag: "20260403184514"
+  tag: "20260403185913"
 
 replicaCount: 1
 
