@@ -79,10 +79,7 @@ jobs:
           sed -i "s/tag: .*/tag: \"${TS}\"/" helm/gateway/values.yaml
           sed -i "s/tag: .*/tag: \"${TS}\"/" helm/backend/values.yaml
 
-      - name: Commit updated values
+      - name: Commit updated values 
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "ci: update image tags to ${{ needs.prepare.outputs.ts }}"
-          file_pattern: |
-            helm/gateway/values.yaml
-            helm/backend/values.yaml
