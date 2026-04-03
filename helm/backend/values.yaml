@@ -1,7 +1,7 @@
 image:
   repository: dkrinitsyn/agents-infra-test-backend
   pullPolicy: Always
-  tag: "20260403214912"
+  tag: "20260403215343"
 
 replicaCount: 1
 
