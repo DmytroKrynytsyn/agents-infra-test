@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: agents-infra-test-backend
+  namespace: argocd
+  labels:
+    project: agents-infra-test
+    component: backend
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/dkrinitsyn/agents-infra-test
+    targetRevision: HEAD
+    path: helm/backend
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: agents-infra-test
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

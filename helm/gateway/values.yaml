@@ -1,0 +1,23 @@
+image:
+  repository: dkrinitsyn/agents-infra-test-gateway
+  pullPolicy: Always
+  tag: "latest"
+
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  host: testapp.local
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+
+env:
+  BACKEND_URL: "http://agents-infra-test-backend.agents-infra-test.svc.cluster.local"
+
+namespace: agents-infra-test

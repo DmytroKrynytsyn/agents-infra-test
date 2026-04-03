@@ -1,0 +1,6 @@
+apiVersion: v2
+name: agents-infra-test-gateway
+description: FastAPI gateway service for agents-infra-test
+type: application
+version: 0.1.0
+appVersion: "latest"

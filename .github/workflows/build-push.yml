@@ -1,0 +1,78 @@
+name: Build and Push
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'gateway/**'
+      - 'backend/**'
+
+jobs:
+  build-gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate build timestamp
+        id: timestamp
+        run: echo "ts=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push gateway
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: gateway/Dockerfile
+          push: true
+          tags: |
+            dkrinitsyn/agents-infra-test-gateway:latest
+            dkrinitsyn/agents-infra-test-gateway:${{ steps.timestamp.outputs.ts }}
+
+      - name: Update gateway image tag
+        run: sed -i "s/tag: .*/tag: \"${{ steps.timestamp.outputs.ts }}\"/" helm/gateway/values.yaml
+
+      - name: Commit gateway values.yaml
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "ci: update agents-infra-test-gateway tag to ${{ steps.timestamp.outputs.ts }}"
+          file_pattern: helm/gateway/values.yaml
+
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate build timestamp
+        id: timestamp
+        run: echo "ts=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: backend/Dockerfile
+          push: true
+          tags: |
+            dkrinitsyn/agents-infra-test-backend:latest
+            dkrinitsyn/agents-infra-test-backend:${{ steps.timestamp.outputs.ts }}
+
+      - name: Update backend image tag
+        run: sed -i "s/tag: .*/tag: \"${{ steps.timestamp.outputs.ts }}\"/" helm/backend/values.yaml
+
+      - name: Commit backend values.yaml
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "ci: update agents-infra-test-backend tag to ${{ steps.timestamp.outputs.ts }}"
+          file_pattern: helm/backend/values.yaml
