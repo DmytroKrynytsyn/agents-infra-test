@@ -1,8 +1,11 @@
 import os
 import httpx
 from fastapi import FastAPI, HTTPException
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI()
+
+Instrumentator().instrument(app).expose(app)
 
 BACKEND_URL = os.getenv("BACKEND_URL", "http://agents-infra-test-backend.agents-infra-test.svc.cluster.local")
 
