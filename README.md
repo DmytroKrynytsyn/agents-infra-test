@@ -1,3 +1,7 @@
+
+<img width="1440" height="804" alt="image" src="https://github.com/user-attachments/assets/501c5bb8-a23c-4a86-b79a-1a08f94275ee" />
+
+
 # agents-infra-test
 
 A GitOps-driven microservice setup running on bare-metal k3s. Two FastAPI services, fully automated from `git push` to running pod.
