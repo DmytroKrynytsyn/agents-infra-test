@@ -1,7 +1,7 @@
 image:
   repository: dkrinitsyn/agents-infra-test-gateway
   pullPolicy: Always
-  tag: "20260403215343"
+  tag: "20260411133706"
 
 replicaCount: 1
 
@@ -13,9 +13,6 @@ service:
 ingress:
   enabled: true
   host: testapp.local
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
 
 env:
   BACKEND_URL: "http://agents-infra-test-backend.agents-infra-test.svc.cluster.local"
