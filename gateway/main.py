@@ -12,20 +12,20 @@ class FilterHealthMetrics(logging.Filter):
 logging.getLogger("uvicorn.access").addFilter(FilterHealthMetrics())
 
 app = FastAPI()
-
-Instrumentator(
-    should_ignore_handler_paths=["/health", "/metrics"]
-).instrument(app).expose(app)
+Instrumentator().instrument(app).expose(app)
 
 BACKEND_URL = os.getenv("BACKEND_URL", "http://agents-infra-test-backend.agents-infra-test.svc.cluster.local")
+
 
 @app.get("/")
 def root():
     return {"status": "ok"}
 
+
 @app.get("/health")
 def health():
     return {"healthy": True}
+
 
 @app.post("/call-backend")
 async def call_backend(payload: dict):

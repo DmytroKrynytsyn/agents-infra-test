@@ -10,14 +10,13 @@ class FilterHealthMetrics(logging.Filter):
 logging.getLogger("uvicorn.access").addFilter(FilterHealthMetrics())
 
 app = FastAPI()
+Instrumentator().instrument(app).expose(app)
 
-Instrumentator(
-    should_ignore_handler_paths=["/health", "/metrics"]
-).instrument(app).expose(app)
 
 @app.get("/health")
 def health():
     return {"healthy": True}
+
 
 @app.post("/echo")
 async def echo(request: Request):
