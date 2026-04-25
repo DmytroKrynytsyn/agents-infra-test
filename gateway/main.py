@@ -1,11 +1,21 @@
 import os
+import logging
 import httpx
 from fastapi import FastAPI, HTTPException
 from prometheus_fastapi_instrumentator import Instrumentator
 
+class FilterHealthMetrics(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        msg = record.getMessage()
+        return "/health" not in msg and "/metrics" not in msg
+
+logging.getLogger("uvicorn.access").addFilter(FilterHealthMetrics())
+
 app = FastAPI()
 
-Instrumentator().instrument(app).expose(app)
+Instrumentator(
+    should_ignore_handler_paths=["/health", "/metrics"]
+).instrument(app).expose(app)
 
 BACKEND_URL = os.getenv("BACKEND_URL", "http://agents-infra-test-backend.agents-infra-test.svc.cluster.local")
 
